@@ -33,4 +33,16 @@ class ExtractionTest extends FunSuite {
     assert(temperatures.filter((temperature:Temperature) => temperature.stationId=="007005_").count()===0,"id: 007005_")
     assert(temperatures.filter((temperature:Temperature) => temperature.stationId=="010010_").count()===363,"id: 010010_")
   }
+
+  test("locateTemperatures"){
+   locateTemperatures.take(20).foreach(println)
+    assert(locateTemperatures.count(_._2==Location(70.933,-8.667)) === 363)
+    assert(locateTemperatures.size === 2176493)
+  }
+
+//  test("locationYearlyAverageRecords"){
+//    locateAverage.take(20).foreach(println)
+//    assert(locateAverage.count(_._1==Location(70.933,-8.667)) === 1)
+//    assert(locateAverage.size === 8251)
+//  }
 }

@@ -36,7 +36,7 @@ object Extraction {
   def locateTemperatures(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
     val stations: Dataset[Station] = getStations(stationsFile)
     val temperatures : Dataset[Temperature] = getTemperatures(temperaturesFile, year)
-    stations.join(temperatures, usingColumn = "id")
+    stations.join(temperatures, temperatures.col("stationId") === stations.col("id"))
       .collect()
       .par
       .map(
@@ -83,8 +83,8 @@ object Extraction {
       .schema(StructType(Array(
         StructField("STN", StringType, true),
         StructField("WBAN", StringType, true),
-        StructField("day", IntegerType, true),
         StructField("month", IntegerType, true),
+        StructField("day", IntegerType, true),
         StructField("temperature", DoubleType, true)
       )))
       .csv(getClass.getResource(temperaturesFile).getPath)
