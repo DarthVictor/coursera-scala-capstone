@@ -16,7 +16,7 @@ class ExtractionTest extends FunSuite {
   lazy val temperatures:Dataset[Temperature] = Extraction.getTemperatures(temperaturePath, year).persist
 
   lazy val locateTemperatures = Extraction.locateTemperatures(year, stationsPath, temperaturePath)
-  //lazy val locateAverage = Extraction.locationYearlyAverageRecords(locateTemperatures)
+  lazy val locateAverage = Extraction.locationYearlyAverageRecords(locateTemperatures)
 
   test("stations"){
     stations.show()
@@ -40,9 +40,9 @@ class ExtractionTest extends FunSuite {
     assert(locateTemperatures.size === 2176493)
   }
 
-//  test("locationYearlyAverageRecords"){
-//    locateAverage.take(20).foreach(println)
-//    assert(locateAverage.count(_._1==Location(70.933,-8.667)) === 1)
-//    assert(locateAverage.size === 8251)
-//  }
+  test("locationYearlyAverageRecords"){
+    locateAverage.take(20).foreach(println)
+    assert(locateAverage.count(_._1==Location(70.933,-8.667)) === 1)
+    assert(locateAverage.size === 8251)
+  }
 }

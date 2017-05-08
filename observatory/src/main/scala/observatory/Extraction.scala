@@ -54,7 +54,9 @@ object Extraction {
     * @return A sequence containing, for each location, the average temperature over the year.
     */
   def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Double)]): Iterable[(Location, Double)] = {
-    ???
+    records.groupBy(_._2).map{case(location, group) =>
+      (location, group.map(_._3).sum/group.size)
+    }
   }
 
   def getStations(stationsFile: String): Dataset[Station] = {
