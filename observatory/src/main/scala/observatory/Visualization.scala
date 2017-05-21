@@ -22,7 +22,7 @@ object Visualization {
         val temperaturesWithOmega = temperaturesWithDistance.map{ case(dist, temp) => (1.0/Math.pow(dist, 3), temp)}
         temperaturesWithOmega.foldLeft(0.0)((sum, pair) => sum + pair._1 * pair._2) / temperaturesWithOmega.map(_._1).sum
       }
-      case(_, temp) => temp
+      case Some(t: (Double, Double)) => t._2
     }
   }
 
@@ -32,7 +32,27 @@ object Visualization {
     * @return The color that corresponds to `value`, according to the color scale defined by `points`
     */
   def interpolateColor(points: Iterable[(Double, Color)], value: Double): Color = {
-    ???
+    def interColor(points: Iterable[(Double, Color)], value: Double): Color ={
+      if(points.size == 1 || value <= points.head._1){
+        points.head._2
+      }
+      else if(value > points.head._1 && value < points.tail.head._1){
+        val k = (value - points.head._1)/(points.tail.head._1 - points.head._1)
+        val c1 = points.head._2
+        val c2 = points.tail.head._2
+        Color(
+          Math.round(c1.red + k *(c2.red - c1.red)).toInt,
+          Math.round(c1.green + k *(c2.green - c1.green)).toInt,
+          Math.round(c1.blue + k *(c2.blue - c1.blue)).toInt
+        )
+      }
+      else{
+        interColor(points.tail, value)
+      }
+    }
+    if (points.size == 0) throw new IllegalArgumentException
+    val sortedPoints = points.toList.sortWith((a, b)=> a._1 < b._1)
+    interColor(sortedPoints, value)
   }
 
   /**
