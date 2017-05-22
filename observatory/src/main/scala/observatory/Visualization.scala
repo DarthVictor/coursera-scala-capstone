@@ -61,7 +61,26 @@ object Visualization {
     * @return A 360×180 image where each pixel shows the predicted temperature at its location
     */
   def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image = {
-    ???
+    val totalWidth = 360
+    val latStep = 180 * 2 / totalWidth
+    val totalHeight = 180
+    val lonStep = 90 * 2 / totalHeight
+    val lat_0 = 90
+    val lon_0 = -180
+
+    val data = (0 until totalWidth * totalHeight).map((n: Int) => {
+      val x = n % totalWidth
+      val y = n / totalWidth
+      val lat = lat_0 - y * latStep
+      val lon = lon_0 + x * lonStep
+      val location = Location(lat, lon)
+
+      val temperature = predictTemperature(temperatures: Iterable[(Location, Double)], location)
+      val color = interpolateColor(colors, temperature)
+      Pixel(color.red, color.green, color.blue, 255)
+    }).toArray
+
+    Image(totalWidth, totalHeight, data)
   }
 
   /**
