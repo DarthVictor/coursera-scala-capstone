@@ -37,8 +37,7 @@ object Interaction {
     val data = (0 until 256 * 256).map((n: Int) => {
       val x_i = n % 256
       val y_i = n / 256
-      val location = tileLocation(inner_zoom, x_i, y_i)
-
+      val location = tileLocation(inner_zoom, x_0 + x_i, y_0 + y_i)
       val temperature = Visualization.predictTemperature(temperatures: Iterable[(Location, Double)], location)
       val color = Visualization.interpolateColor(colors, temperature)
       Pixel(color.red, color.green, color.blue, 127)
@@ -58,7 +57,17 @@ object Interaction {
     yearlyData: Iterable[(Int, Data)],
     generateImage: (Int, Int, Int, Int, Data) => Unit
   ): Unit = {
-    ???
+    yearlyData.foreach{case(year, data) =>
+      (0 to 3).foreach(zoom => {
+          val n = Math.round(Math.pow(2, zoom)).toInt
+          (0 until n).foreach(x => {
+            (0 until n).par.foreach(y => {
+              generateImage(year, zoom, x, y, data)
+            })
+          })
+      })
+    }
   }
+
 
 }
