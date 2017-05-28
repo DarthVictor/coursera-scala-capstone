@@ -2,6 +2,8 @@ package observatory
 
 import com.sksamuel.scrimage.{Image, Pixel}
 
+import scala.math._
+
 /**
   * 2nd milestone: basic visualization
   */
@@ -17,10 +19,18 @@ object Visualization {
     //def omega(l: Location): Double = 1/Math.pow(distance(l, location), 3)
     val temperaturesWithDistance = temperatures.map{ case(loc, temp) => (distance(loc, location), temp) }
     val nearest = temperaturesWithDistance.find{ case(dist, _) => dist < MinDistance }
-    nearest match  {
+
+    nearest match {
       case None => {
-        val temperaturesWithOmega = temperaturesWithDistance.map{ case(dist, temp) => (1.0/Math.pow(dist, 3), temp)}
-        temperaturesWithOmega.foldLeft(0.0)((sum, pair) => sum + pair._1 * pair._2) / temperaturesWithOmega.map(_._1).sum
+        val (weightedSum, invertedSum) = temperaturesWithDistance.aggregate(0.0, 0.0)({
+          case ((weightedSum, invertedSum), (dist, temp)) =>
+            val cur = 1.0 / Math.pow(dist, 3)
+            (weightedSum + temp * cur, invertedSum + cur)
+        }, {
+          case ((weightedSumA, invertedSumA), (weightedSumB, invertedSumB)) =>
+            (weightedSumA + weightedSumB, invertedSumA + invertedSumB)
+        })
+        weightedSum / invertedSum
       }
       case Some(t: (Double, Double)) => t._2
     }
@@ -87,14 +97,15 @@ object Visualization {
   {\displaystyle \delta =\arccos(\sin \varphi _{1}\cdot \sin \varphi _{2}+\cos \varphi _{1}\cdot \cos \varphi _{2}\cdot \cos(\lambda _{2}-\lambda _{1})).} \delta =\arccos(\sin \varphi _{1}\cdot \sin \varphi _{2}+\cos \varphi _{1}\cdot \cos \varphi _{2}\cdot \cos(\lambda _{2}-\lambda _{1})).
   */
   def distance(l1: Location, l2: Location): Double = {
-    val phi_1 = Math.toRadians(l1.lat)
-    val phi_2 = Math.toRadians(l2.lat)
-    val lambda_1 = Math.toRadians(l1.lon)
-    val lambda_2 = Math.toRadians(l2.lon)
-    Math.acos(
-      Math.sin(phi_1) * Math.sin(phi_2) +
-      Math.cos(phi_1) * Math.cos(phi_2) * Math.cos(lambda_2 - lambda_1)
-    )
+    val Location(lat1, lon1) = l1
+    val Location(lat2, lon2) = l2
+
+    val latDist = toRadians(lat2 - lat1)
+    val lonDist = toRadians(lon2 - lon1)
+
+    val a = pow(sin(latDist / 2), 2) + pow(sin(lonDist / 2), 2) * cos(toRadians(lat1)) * cos(toRadians(lat2))
+
+    2 * atan2(sqrt(a), sqrt(1 - a))
   }
 }
 
