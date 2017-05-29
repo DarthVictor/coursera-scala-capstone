@@ -11,16 +11,27 @@ object Manipulation {
     *         returns the predicted temperature at this location
     */
   def makeGrid(temperatures: Iterable[(Location, Double)]): (Int, Int) => Double = {
-    val LAT_MIN = -89
-    val LAT_MAX = 90
-    val LON_MIN = -180
-    val LON_MAX = 179
-    val grid = (LAT_MIN to LAT_MAX).par.map(lat => {
-      (LON_MIN to LON_MAX).map(lon => {
-        Visualization.predictTemperature(temperatures, new Location(lat, lon))
-      })
-    })
-    def getValue(latitude: Int, longitude: Int) = grid(latitude - LAT_MIN)(longitude - LON_MIN)
+    //println("makeGrid")
+//    val LAT_MIN = -89
+//    val LAT_MAX = 90
+//    val LON_MIN = -180
+//    val LON_MAX = 179
+//    //val t_0 = System.currentTimeMillis
+//
+//    val grid: Map[Location, Double] = {
+//      for {
+//        lat <- (LAT_MIN to LAT_MAX).par
+//        lon <- LON_MIN to LON_MAX
+//      } yield Location(lat, lon) -> Visualization.predictTemperature(temperatures, Location(lat, lon))
+//    }.seq.toMap
+//    //println("makeGrid total time = " + (System.currentTimeMillis - t_0))
+//
+//    (lat, lon) => grid(Location(lat, lon))
+
+
+    def getValue(latitude: Int, longitude: Int) = {
+      Visualization.predictTemperature(temperatures, new Location(latitude, longitude))
+    }
     getValue
   }
 

@@ -17,14 +17,15 @@ object Visualization {
     */
   def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
     //def omega(l: Location): Double = 1/Math.pow(distance(l, location), 3)
-    val temperaturesWithDistance = temperatures.map{ case(loc, temp) => (distance(loc, location), temp) }
-    val nearest = temperaturesWithDistance.find{ case(dist, _) => dist < MinDistance }
+    val temperaturesWithDistance = temperatures.par.map{ case(loc, temp) => (distance(loc, location), temp) }
+    //temperaturesWithDistance.head._2
+    val nearest = temperaturesWithDistance.par.find{ case(dist, _) => dist == 0.0 }
 
     nearest match {
       case None => {
         val (weightedSum, invertedSum) = temperaturesWithDistance.aggregate(0.0, 0.0)({
           case ((weightedSum, invertedSum), (dist, temp)) =>
-            val cur = 1.0 / Math.pow(dist, 3)
+            val cur = 1.0 / (dist*dist*dist)
             (weightedSum + temp * cur, invertedSum + cur)
         }, {
           case ((weightedSumA, invertedSumA), (weightedSumB, invertedSumB)) =>
@@ -106,6 +107,14 @@ object Visualization {
     val a = pow(sin(latDist / 2), 2) + pow(sin(lonDist / 2), 2) * cos(toRadians(lat1)) * cos(toRadians(lat2))
 
     2 * atan2(sqrt(a), sqrt(1 - a))
+  }
+
+  def distance2(l1: Location, l2: Location):Double = {
+    val Location(lat1, lon1) = l1
+    val Location(lat2, lon2) = l2
+    val x = (lon2 - lon1) * cos( 0.5*(lat2+lat1) )
+    val y = lat2 - lat1
+    sqrt( x*x + y*y )
   }
 }
 
