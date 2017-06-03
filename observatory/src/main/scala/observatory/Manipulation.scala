@@ -11,7 +11,7 @@ object Manipulation {
     *         returns the predicted temperature at this location
     */
   def makeGrid(temperatures: Iterable[(Location, Double)]): (Int, Int) => Double = {
-    //println("makeGrid")
+//    println("makeGrid")
 //    val LAT_MIN = -89
 //    val LAT_MAX = 90
 //    val LON_MIN = -180

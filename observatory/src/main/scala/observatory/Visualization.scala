@@ -15,7 +15,7 @@ object Visualization {
     * @param location Location where to predict the temperature
     * @return The predicted temperature at `location`
     */
-  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
+  def predictTemperature2(temperatures: Iterable[(Location, Double)], location: Location): Double = {
     //def omega(l: Location): Double = 1/Math.pow(distance(l, location), 3)
     val temperaturesWithDistance = temperatures.par.map{ case(loc, temp) => (distance(loc, location), temp) }
     //temperaturesWithDistance.head._2
@@ -32,6 +32,19 @@ object Visualization {
             (weightedSumA + weightedSumB, invertedSumA + invertedSumB)
         })
         weightedSum / invertedSum
+      }
+      case Some(t: (Double, Double)) => t._2
+    }
+  }
+
+  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
+    //def omega(l: Location): Double = 1/Math.pow(distance(l, location), 3)
+    val temperaturesWithDistance = temperatures.map{ case(loc, temp) => (distance(loc, location), temp) }
+    val nearest = temperaturesWithDistance.find{ case(dist, _) => dist < MinDistance }
+    nearest match  {
+      case None => {
+        val temperaturesWithOmega = temperaturesWithDistance.map{ case(dist, temp) => (1.0/Math.pow(dist, 3), temp)}
+        temperaturesWithOmega.foldLeft(0.0)((sum, pair) => sum + pair._1 * pair._2) / temperaturesWithOmega.map(_._1).sum
       }
       case Some(t: (Double, Double)) => t._2
     }
